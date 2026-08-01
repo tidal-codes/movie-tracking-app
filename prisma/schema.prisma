@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// -----------------------------------------------------------------------------
+// User
+// برای اضافه کردن فیلد جدید (مثلا avatarUrl, bio, role و ...) فقط کافیه اینجا
+// فیلد رو اضافه کنی و بعد `npx prisma migrate dev --name add_xxx` رو اجرا کنی.
+// -----------------------------------------------------------------------------
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  firstName    String
+  lastName     String
+  passwordHash String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// Session
+// id = هش SHA-256 توکن سشن (نه خود توکن). توکن خام فقط توی کوکی کاربره و
+// هیچ‌وقت توی دیتابیس ذخیره نمیشه؛ این یعنی اگه دیتابیس لو بره، سشن‌ها
+// قابل استفاده نیستن (شبیه نگهداری هش پسورد).
+// -----------------------------------------------------------------------------
+model Session {
+  id     String @id
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userAgent String?
+  ipAddress String?
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}

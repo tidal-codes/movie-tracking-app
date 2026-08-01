@@ -1,0 +1,1 @@
+export { GET } from "@/features/explore/api/trending-tv";
